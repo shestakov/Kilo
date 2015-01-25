@@ -60,6 +60,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ColorSettingsController.cs" />
     <Compile Include="DwmApi.cs" />
     <Compile Include="KeyboardLayoutSwitchHooker.cs" />
     <Compile Include="MainForm.cs">

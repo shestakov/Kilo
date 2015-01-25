@@ -2,7 +2,6 @@ using System.Runtime.InteropServices;
 
 namespace KeyboardLayoutMonitor
 {
-	// ReSharper disable InconsistentNaming
 	public static class DwmApi
 	{
 		[DllImport("dwmapi.dll", PreserveSig = false)]
@@ -14,6 +13,7 @@ namespace KeyboardLayoutMonitor
 		[DllImport("dwmapi.dll", EntryPoint = "#131", PreserveSig = false)]
 		public static extern void DwmSetColorizationParameters(ref WDM_COLORIZATION_PARAMS parameters, uint uUnknown);
 
+		// ReSharper disable once InconsistentNaming
 		[StructLayout(LayoutKind.Sequential)]
 		public struct WDM_COLORIZATION_PARAMS
 		{
@@ -26,5 +26,4 @@ namespace KeyboardLayoutMonitor
 			public uint Opaque;
 		}
 	}
-	// ReSharper restore InconsistentNaming
 }

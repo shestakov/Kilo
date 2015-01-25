@@ -33,7 +33,7 @@ extern "C" __declspec(dllexport) int CallWndProc(int nCode, WPARAM wParam, LPARA
 	if (nCode == HSHELL_LANGUAGE)
 	{
 		HWND window = FindWindow(0, "Alex Shestakov's Keyboard Layout Monitor");
-		PostMessage(window, WM_USER+7, 0, lParam );
+		PostMessage(window, WM_USER+7, 0, lParam);
 	}
 
 	return CallNextHookEx(0,nCode,wParam, lParam);

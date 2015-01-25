@@ -21,12 +21,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_21DCC1C3CBC14B2C958A644E737E45B9"
-        "OwnerKey" = "8:_23668050845E4ED880EC0066BA69D636"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_23668050845E4ED880EC0066BA69D636"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -35,12 +29,6 @@
         {
         "MsmKey" = "8:_28357CA1346E465B914AD6328BAF96A1"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_530924E9DB0B4866A0751D4D76CF0084"
-        "OwnerKey" = "8:_D704009AEAF54D53ABA602D8BEF99EA0"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -166,13 +154,13 @@
         {
             "LaunchCondition"
             {
-                "{A06ECF26-33A3-4562-8140-9B0E340D4F24}:_08043963FE82424EA375200C17D98E60"
+                "{A06ECF26-33A3-4562-8140-9B0E340D4F24}:_28C37577623048FD807536BBEFF3B5AA"
                 {
                 "Name" = "8:.NET Framework"
                 "Message" = "8:[VSDNETMSG]"
                 "FrameworkVersion" = "8:.NETFramework,Version=v3.5,Profile=Client"
                 "AllowLaterVersions" = "11:FALSE"
-                "InstallUrl" = "8:http://go.microsoft.com/fwlink/?LinkId=131000"
+                "InstallUrl" = "8:http://go.microsoft.com/fwlink/?LinkId=395269"
                 }
             }
         }
@@ -257,7 +245,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:Alex Shestakov's Keyboard Layout Monitor"
         "ProductCode" = "8:{C49FF644-DD19-47E7-BAF0-F7716CAD1E0F}"
-        "PackageCode" = "8:{5BA175BA-EFD4-48D2-BE4C-5D0EBAE04B91}"
+        "PackageCode" = "8:{D8C24AAF-5124-45B6-9716-02BC48BBEA57}"
         "UpgradeCode" = "8:{0A37758E-72D4-4C5B-9451-1F32048E4A70}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
@@ -731,34 +719,6 @@
         }
         "MergeModule"
         {
-            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_21DCC1C3CBC14B2C958A644E737E45B9"
-            {
-            "UseDynamicProperties" = "11:TRUE"
-            "IsDependency" = "11:TRUE"
-            "SourcePath" = "8:Microsoft_VC100_CRT_x86.msm"
-                "Properties"
-                {
-                }
-            "LanguageId" = "3:0"
-            "Exclude" = "11:FALSE"
-            "Folder" = "8:"
-            "Feature" = "8:"
-            "IsolateTo" = "8:"
-            }
-            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_530924E9DB0B4866A0751D4D76CF0084"
-            {
-            "UseDynamicProperties" = "11:TRUE"
-            "IsDependency" = "11:TRUE"
-            "SourcePath" = "8:Microsoft_VC100_CRT_x64.msm"
-                "Properties"
-                {
-                }
-            "LanguageId" = "3:0"
-            "Exclude" = "11:FALSE"
-            "Folder" = "8:"
-            "Feature" = "8:"
-            "IsolateTo" = "8:"
-            }
         }
         "ProjectOutput"
         {
@@ -820,7 +780,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_28357CA1346E465B914AD6328BAF96A1"
             {
-            "SourcePath" = "8:"
+            "SourcePath" = "8:..\\HookerWatcher\\obj\\x64\\Release\\HookerWatcher.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_BC71C008FC134532939EBADA0F82190E"

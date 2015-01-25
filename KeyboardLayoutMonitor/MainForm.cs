@@ -9,67 +9,29 @@ namespace KeyboardLayoutMonitor
 {
 	public partial class MainForm : Form
 	{
+		private const string settingsFileName = "KlmSettings.dat";
+		private const string registryKey = @"Software\Microsoft\Windows\CurrentVersion\Run";
 		private static Process hookerProcess32;
 		private static Process hookerProcess64;
 		private bool realClose;
 		private Settings settings = new Settings();
-		private const string SettingsFileName = "KlmSettings.dat";
-		private const string RegistryKey = @"Software\Microsoft\Windows\CurrentVersion\Run";
-
-		#region Initialization
-
-		public MainForm()
-		{
-			LoadOrCreateDefaultSettings();
-
-			if(Environment.OSVersion.Version.Major < 6)
-			{
-				const string errorMessage = "Операцинные системы без Windows Aero не поддерживаются";
-				MessageBox.Show(errorMessage, "Ошибка при запуске", MessageBoxButtons.OK, MessageBoxIcon.Error);
-				Environment.FailFast(errorMessage);
-				return;
-			}
-
-			try
-			{
-				StartLayoutMonitors();
-			}
-			catch(Exception ex)
-			{
-				string message = ex.ToString();
-				MessageBox.Show(message);
-				Environment.FailFast(message);
-				throw;
-			}
-
-			Application.ApplicationExit += ApplicationOnApplicationExit;
-
-			InitializeComponent();
-		}
-
-		private void MainForm_Load(object sender, EventArgs e)
-		{
-			Hide();
-		}
-
-		#endregion
 
 		private static void ApplicationOnApplicationExit(object sender, EventArgs args)
 		{
-			if(hookerProcess32 != null && !hookerProcess32.HasExited)
+			if (hookerProcess32 != null && !hookerProcess32.HasExited)
 				hookerProcess32.Kill();
-			if(hookerProcess64 != null && !hookerProcess64.HasExited)
+			if (hookerProcess64 != null && !hookerProcess64.HasExited)
 				hookerProcess64.Kill();
 		}
 
-		public static bool StartLayoutMonitors()
+		private static bool StartLayoutMonitors()
 		{
-			ProcessStartInfo startInfo = new ProcessStartInfo
-											{
-												FileName = @"x86\HookerWatcher.exe",
-												CreateNoWindow = true,
-												UseShellExecute = false
-											};
+			var startInfo = new ProcessStartInfo
+			{
+				FileName = @"x86\HookerWatcher.exe",
+				CreateNoWindow = true,
+				UseShellExecute = false
+			};
 			hookerProcess32 = Process.Start(startInfo);
 
 			startInfo = new ProcessStartInfo
@@ -79,7 +41,7 @@ namespace KeyboardLayoutMonitor
 				UseShellExecute = false
 			};
 
-			bool result = true;
+			var result = true;
 
 			try
 			{
@@ -93,21 +55,17 @@ namespace KeyboardLayoutMonitor
 			return result;
 		}
 
-		#region WndProc
-
 		protected override void WndProc(ref Message msg)
 		{
-			switch(msg.Msg)
+			switch (msg.Msg)
 			{
 				case KeyboardLayoutSwitchHooker.WM_LANGUAGE_CHANGED:
-					if(!Visible)
+					if (!Visible)
 						ColorSettingsController.SetColor(msg.LParam, settings);
 					break;
 			}
 			base.WndProc(ref msg);
 		}
-
-		#endregion
 
 		private void notifyIcon_MouseDoubleClick(object sender, MouseEventArgs e)
 		{
@@ -123,7 +81,7 @@ namespace KeyboardLayoutMonitor
 
 		private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
 		{
-			if(realClose) return;
+			if (realClose) return;
 			e.Cancel = true;
 			Hide();
 		}
@@ -142,10 +100,10 @@ namespace KeyboardLayoutMonitor
 		private void MainForm_Shown(object sender, EventArgs e)
 		{
 			comboBoxLanguages.Items.Clear();
-			foreach(InputLanguage language in InputLanguage.InstalledInputLanguages)
+			foreach (InputLanguage language in InputLanguage.InstalledInputLanguages)
 			{
 				comboBoxLanguages.Items.Add(language.LayoutName);
-				if(settings.DefaultLayoutName == language.Culture.ThreeLetterWindowsLanguageName)
+				if (settings.DefaultLayoutName == language.Culture.ThreeLetterWindowsLanguageName)
 					comboBoxLanguages.SelectedItem = language.LayoutName;
 			}
 			GetAutoRunSettings();
@@ -153,9 +111,9 @@ namespace KeyboardLayoutMonitor
 
 		private void comboBoxLanguages_SelectedIndexChanged(object sender, EventArgs e)
 		{
-			foreach(InputLanguage language in InputLanguage.InstalledInputLanguages)
+			foreach (InputLanguage language in InputLanguage.InstalledInputLanguages)
 			{
-				if(language.LayoutName == comboBoxLanguages.SelectedText)
+				if (language.LayoutName == comboBoxLanguages.SelectedText)
 					settings.DefaultLayoutName = language.Culture.ThreeLetterWindowsLanguageName;
 			}
 		}
@@ -168,9 +126,10 @@ namespace KeyboardLayoutMonitor
 				DwmApi.DwmGetColorizationParameters(out colorizationParams);
 				settings.DefaultLayoutColorScheme = colorizationParams;
 			}
-			catch(Exception ex)
+			catch (Exception ex)
 			{
-				MessageBox.Show(ex.ToString(), "Не удалось получить текущую цветовую схему", MessageBoxButtons.OK, MessageBoxIcon.Error);
+				MessageBox.Show(ex.ToString(), "Не удалось получить текущую цветовую схему", MessageBoxButtons.OK,
+					MessageBoxIcon.Error);
 			}
 		}
 
@@ -182,9 +141,10 @@ namespace KeyboardLayoutMonitor
 				DwmApi.DwmGetColorizationParameters(out colorizationParams);
 				settings.AlternativeLayoutColorScheme = colorizationParams;
 			}
-			catch(Exception ex)
+			catch (Exception ex)
 			{
-				MessageBox.Show(ex.ToString(), "Не удалось получить текущую цветовую схему", MessageBoxButtons.OK, MessageBoxIcon.Error);
+				MessageBox.Show(ex.ToString(), "Не удалось получить текущую цветовую схему", MessageBoxButtons.OK,
+					MessageBoxIcon.Error);
 			}
 		}
 
@@ -203,24 +163,23 @@ namespace KeyboardLayoutMonitor
 		{
 			try
 			{
-				RegistryKey key = Registry.CurrentUser.OpenSubKey(RegistryKey, true);
-				if(key == null)
-					throw new Exception("Не найден ключ реестра " + RegistryKey);
+				RegistryKey key = Registry.CurrentUser.OpenSubKey(registryKey, true);
+				if (key == null)
+					throw new Exception("Не найден ключ реестра " + registryKey);
 				try
 				{
-					string location = Assembly.GetExecutingAssembly().Location;
-					if(location == null)
-						throw new NullReferenceException("Assembly.Location is null");
-					checkBoxAutoRun.Checked = location == (string)key.GetValue("JetFly", null);
+					var location = Assembly.GetExecutingAssembly().Location;
+					checkBoxAutoRun.Checked = location == (string) key.GetValue("JetFly", null);
 				}
 				finally
 				{
 					key.Close();
 				}
 			}
-			catch(Exception ex)
+			catch (Exception ex)
 			{
-				MessageBox.Show(ex.ToString(), "Не удалось проверить настройку автозапуска", MessageBoxButtons.OK, MessageBoxIcon.Error);
+				MessageBox.Show(ex.ToString(), "Не удалось проверить настройку автозапуска", MessageBoxButtons.OK,
+					MessageBoxIcon.Error);
 				throw;
 			}
 		}
@@ -229,14 +188,12 @@ namespace KeyboardLayoutMonitor
 		{
 			try
 			{
-				RegistryKey key = Registry.CurrentUser.OpenSubKey(RegistryKey, true);
-				if(key == null)
-					throw new Exception("Не найден ключ реестра " + RegistryKey);
+				var key = Registry.CurrentUser.OpenSubKey(registryKey, true);
+				if (key == null)
+					throw new Exception("Не найден ключ реестра " + registryKey);
 				try
 				{
-					string location = Assembly.GetExecutingAssembly().Location;
-					if(location == null)
-						throw new NullReferenceException("Assembly.Location is null");
+					var location = Assembly.GetExecutingAssembly().Location;
 					if (checkBoxAutoRun.Checked)
 						key.SetValue("JetFly", location, RegistryValueKind.String);
 					else
@@ -247,24 +204,59 @@ namespace KeyboardLayoutMonitor
 					key.Close();
 				}
 			}
-			catch(Exception ex)
+			catch (Exception ex)
 			{
 				MessageBox.Show(ex.ToString(), "Не удалось изменить настройку автозапуска", MessageBoxButtons.OK,
-								MessageBoxIcon.Error);
+					MessageBoxIcon.Error);
 			}
+		}
+
+		public MainForm()
+		{
+			LoadOrCreateDefaultSettings();
+
+			if (Environment.OSVersion.Version.Major < 6)
+			{
+				const string errorMessage = "Операцинные системы без Windows Aero не поддерживаются";
+				MessageBox.Show(errorMessage, "Ошибка при запуске", MessageBoxButtons.OK, MessageBoxIcon.Error);
+				Environment.FailFast(errorMessage);
+				return;
+			}
+
+			try
+			{
+				StartLayoutMonitors();
+			}
+			catch (Exception ex)
+			{
+				var message = ex.ToString();
+				MessageBox.Show(message);
+				Environment.FailFast(message);
+				throw;
+			}
+
+			Application.ApplicationExit += ApplicationOnApplicationExit;
+
+			InitializeComponent();
+		}
+
+		private void MainForm_Load(object sender, EventArgs e)
+		{
+			Hide();
 		}
 
 		#region Settings management
 
 		private void SaveCurrentSettings()
 		{
-			string settingsFileName = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), SettingsFileName);
+			string settingsFileName = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+				MainForm.settingsFileName);
 			try
 			{
 				File.WriteAllBytes(settingsFileName, Settings.Serialize(settings));
 				Hide();
 			}
-			catch(Exception ex)
+			catch (Exception ex)
 			{
 				MessageBox.Show(ex.ToString(), "Не удалось сохранить настройки", MessageBoxButtons.OK, MessageBoxIcon.Error);
 			}
@@ -272,23 +264,25 @@ namespace KeyboardLayoutMonitor
 
 		private void LoadOrCreateDefaultSettings()
 		{
-			string settingsFileName = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), SettingsFileName);
+			string settingsFileName = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+				MainForm.settingsFileName);
 			Settings newSettings;
 			try
 			{
 				byte[] binary = File.ReadAllBytes(settingsFileName);
 				newSettings = Settings.Deserialize(binary);
 			}
-			catch(Exception)
+			catch (Exception)
 			{
 				newSettings = Settings.CreateDefaultSettings();
 				try
 				{
 					File.WriteAllBytes(settingsFileName, Settings.Serialize(newSettings));
 				}
-				catch(Exception ex)
+				catch (Exception ex)
 				{
-					MessageBox.Show(ex.ToString(), "Не удалось сохранить настройки по-умолчанию", MessageBoxButtons.OK, MessageBoxIcon.Error);
+					MessageBox.Show(ex.ToString(), "Не удалось сохранить настройки по умолчанию", MessageBoxButtons.OK,
+						MessageBoxIcon.Error);
 				}
 			}
 			settings = newSettings;

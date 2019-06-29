@@ -10,7 +10,10 @@ namespace KeyboardLayoutMonitor
 		public DwmApi.WDM_COLORIZATION_PARAMS DefaultLayoutColorScheme { get; set; }
 		public DwmApi.WDM_COLORIZATION_PARAMS AlternativeLayoutColorScheme { get; set; }
 
-		public static Settings CreateDefaultSettings()
+        public int Win10DefaultLayoutColorScheme { get; set; }
+        public int Win10AlternativeLayoutColorScheme { get; set; }
+
+        public static Settings CreateDefaultSettings()
 		{
 			var result = new Settings {DefaultLayoutName = "ENU"};
 
@@ -40,7 +43,11 @@ namespace KeyboardLayoutMonitor
 
 			result.AlternativeLayoutColorScheme = colorizationParams;
 
-			return result;
+            result.Win10DefaultLayoutColorScheme = 6368045;
+            result.Win10AlternativeLayoutColorScheme = 2773504;
+
+
+            return result;
 		}
 
 		public static byte[] Serialize(Settings settings)
@@ -53,7 +60,11 @@ namespace KeyboardLayoutMonitor
 			stream.Write(buffer, 0, buffer.Length);
 			buffer = SerializeColorizationParams(settings.AlternativeLayoutColorScheme);
 			stream.Write(buffer, 0, buffer.Length);
-			return stream.ToArray();
+            buffer = BitConverter.GetBytes(settings.Win10DefaultLayoutColorScheme);
+            stream.Write(buffer, 0, buffer.Length);
+            buffer = BitConverter.GetBytes(settings.Win10AlternativeLayoutColorScheme);
+            stream.Write(buffer, 0, buffer.Length);
+            return stream.ToArray();
 		}
 
 		public static Settings Deserialize(byte[] serializedSettings)
@@ -88,7 +99,10 @@ namespace KeyboardLayoutMonitor
 					Unknown3 = reader.ReadUInt32()
 				};
 				settings.AlternativeLayoutColorScheme = colorizationParams;
-			}
+
+                settings.Win10DefaultLayoutColorScheme = reader.ReadInt32();
+                settings.Win10AlternativeLayoutColorScheme = reader.ReadInt32();
+            }
 
 			return settings;
 		}

@@ -12,6 +12,8 @@ namespace KeyboardLayoutMonitor
 		private static IntPtr currentLanguageHanlder = IntPtr.Zero;
 		private static readonly InputLanguageCollection installedInputLanguages = InputLanguage.InstalledInputLanguages;
 
+
+        public static bool MainFormVisible;
         private static bool isWin10;
         private static bool findTaskbarHandles = true;
         private static bool runApplyTask = false;
@@ -45,17 +47,20 @@ namespace KeyboardLayoutMonitor
                     findTaskbarHandles = false;
                 }
 
-                foreach (var handle in taskbarHandles)
+                if (!MainFormVisible)
                 {
-                    int sizeOfPolicy = Marshal.SizeOf(accentPolicy);
-                    IntPtr policyPtr = Marshal.AllocHGlobal(sizeOfPolicy);
-                    Marshal.StructureToPtr(accentPolicy, policyPtr, false);
+                    foreach (var handle in taskbarHandles)
+                    {
+                        int sizeOfPolicy = Marshal.SizeOf(accentPolicy);
+                        IntPtr policyPtr = Marshal.AllocHGlobal(sizeOfPolicy);
+                        Marshal.StructureToPtr(accentPolicy, policyPtr, false);
 
-                    Win10Api.WinCompatTrData data = new Win10Api.WinCompatTrData(Win10Api.WindowCompositionAttribute.WCA_ACCENT_POLICY, policyPtr, sizeOfPolicy);
+                        Win10Api.WinCompatTrData data = new Win10Api.WinCompatTrData(Win10Api.WindowCompositionAttribute.WCA_ACCENT_POLICY, policyPtr, sizeOfPolicy);
 
-                    Win10Api.SetWindowCompositionAttribute(handle, ref data);
+                        Win10Api.SetWindowCompositionAttribute(handle, ref data);
 
-                    Marshal.FreeHGlobal(policyPtr);
+                        Marshal.FreeHGlobal(policyPtr);
+                    }
                 }
 
                 Thread.Sleep(10);

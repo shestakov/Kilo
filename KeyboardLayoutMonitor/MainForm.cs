@@ -322,6 +322,11 @@ namespace KeyboardLayoutMonitor
 			settings = newSettings;
 		}
 
-		#endregion
-	}
+        #endregion
+
+        private void MainForm_VisibleChanged(object sender, EventArgs e)
+        {
+            ColorSettingsController.MainFormVisible = Visible;
+        }
+    }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Drawing;
 using System.IO;
 using System.Reflection;
 using System.Windows.Forms;
@@ -15,6 +16,7 @@ namespace KeyboardLayoutMonitor
 		private static Process hookerProcess64;
 		private bool realClose;
 		private Settings settings = new Settings();
+        private bool isWin10;
 
 		private static void ApplicationOnApplicationExit(object sender, EventArgs args)
 		{
@@ -113,18 +115,35 @@ namespace KeyboardLayoutMonitor
 		{
 			foreach (InputLanguage language in InputLanguage.InstalledInputLanguages)
 			{
-				if (language.LayoutName == comboBoxLanguages.SelectedText)
+				if (language.LayoutName == (string)comboBoxLanguages.SelectedItem)
 					settings.DefaultLayoutName = language.Culture.ThreeLetterWindowsLanguageName;
 			}
 		}
 
-		private void buttonPickDefaultLayoutColor_Click(object sender, EventArgs e)
+        public static int GetWin10TaskbarColorAsInt()
+        {
+            string keyName = "HKEY_CURRENT_USER\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Accent";
+            byte[] bytes = (byte[])Microsoft.Win32.Registry.GetValue(keyName, "AccentPalette", null);
+
+            var accentColor = Color.FromArgb(bytes[23], bytes[20], bytes[21], bytes[22]);
+
+            return BitConverter.ToInt32(new byte[] { accentColor.R, accentColor.G, accentColor.B, 0 }, 0);
+        }
+
+        private void buttonPickDefaultLayoutColor_Click(object sender, EventArgs e)
 		{
 			try
 			{
-				DwmApi.WDM_COLORIZATION_PARAMS colorizationParams;
-				DwmApi.DwmGetColorizationParameters(out colorizationParams);
-				settings.DefaultLayoutColorScheme = colorizationParams;
+                if (isWin10)
+                {
+                    settings.Win10DefaultLayoutColorScheme = GetWin10TaskbarColorAsInt();
+                }
+                else
+                {
+                    DwmApi.WDM_COLORIZATION_PARAMS colorizationParams;
+                    DwmApi.DwmGetColorizationParameters(out colorizationParams);
+                    settings.DefaultLayoutColorScheme = colorizationParams;
+                }
 			}
 			catch (Exception ex)
 			{
@@ -137,9 +156,16 @@ namespace KeyboardLayoutMonitor
 		{
 			try
 			{
-				DwmApi.WDM_COLORIZATION_PARAMS colorizationParams;
-				DwmApi.DwmGetColorizationParameters(out colorizationParams);
-				settings.AlternativeLayoutColorScheme = colorizationParams;
+                if (isWin10)
+                {
+                    settings.Win10AlternativeLayoutColorScheme = GetWin10TaskbarColorAsInt();                    
+                }
+                else
+                {
+                    DwmApi.WDM_COLORIZATION_PARAMS colorizationParams;
+                    DwmApi.DwmGetColorizationParameters(out colorizationParams);
+                    settings.AlternativeLayoutColorScheme = colorizationParams;
+                }
 			}
 			catch (Exception ex)
 			{
@@ -215,13 +241,21 @@ namespace KeyboardLayoutMonitor
 		{
 			LoadOrCreateDefaultSettings();
 
-			if (Environment.OSVersion.Version.Major < 6)
+            var osVersionMajor = Environment.OSVersion.Version.Major;
+            
+            if (osVersionMajor < 6)
 			{
 				const string errorMessage = "Операцинные системы без Windows Aero не поддерживаются";
 				MessageBox.Show(errorMessage, "Ошибка при запуске", MessageBoxButtons.OK, MessageBoxIcon.Error);
 				Environment.FailFast(errorMessage);
 				return;
 			}
+
+            if (osVersionMajor == 10)
+            {
+                isWin10 = true;
+                ColorSettingsController.InitialiseWin10(settings);
+            }
 
 			try
 			{
@@ -288,6 +322,11 @@ namespace KeyboardLayoutMonitor
 			settings = newSettings;
 		}
 
-		#endregion
-	}
+        #endregion
+
+        private void MainForm_VisibleChanged(object sender, EventArgs e)
+        {
+            ColorSettingsController.MainFormVisible = Visible;
+        }
+    }
 }
